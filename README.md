@@ -14,9 +14,8 @@ Die fertige App liegt unter **[Releases](https://github.com/CyberMolch/Rasenzeit
 
 ### Neue Version veröffentlichen
 1. Änderungen in `CHANGELOG.md` unter `## x.y.z` beschreiben (erscheinen in der App als „Was ist neu“).
-2. `version` in `package.json` auf `x.y.z` setzen und committen.
-3. Tag pushen: `git tag vx.y.z && git push origin main --tags`
-4. GitHub Actions baut die signierte APK und veröffentlicht das Release. Die installierten Apps finden es automatisch.
+2. `version` in `package.json` auf `x.y.z` erhöhen.
+3. Auf `main` pushen. GitHub Actions baut die signierte APK und legt das Release `vx.y.z` an, sofern es noch nicht existiert. Die installierten Apps finden es automatisch.
 
 ### Lokal bauen
 Voraussetzungen: Node.js 22, JDK 21, Android SDK (z. B. über Android Studio).

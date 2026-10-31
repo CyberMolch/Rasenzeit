@@ -1,8 +1,9 @@
 # Baut die signierte Android-APK von Rasenzeit.
 #
-# - Push auf main:      APK bauen und als Artefakt anhängen (zum Testen).
-# - Tag v*, z. B. v0.2.0: APK bauen und als GitHub-Release veröffentlichen.
-#                        Die App findet das Release über ihre Update-Prüfung.
+# Bei jedem Push auf main wird die APK gebaut. Gibt es zur Version aus
+# package.json noch kein Release (z. B. v0.2.0), wird es automatisch angelegt.
+# Die installierten Apps finden es über ihre Update-Prüfung.
+# Neue Version = "version" in package.json erhöhen, CHANGELOG.md ergänzen, pushen.
 #
 # Signatur: Alle APKs werden mit demselben Schlüssel signiert, damit Updates
 # über die installierte App laufen. Ist das Secret KEYSTORE_BASE64 gesetzt,
@@ -13,7 +14,6 @@ name: Android-APK
 on:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -42,12 +42,20 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Version aus Tag übernehmen
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Prüfen, ob diese Version schon veröffentlicht ist
+        id: rel
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          node -e "const f='package.json';const p=require('./'+f);p.version=process.argv[1];require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')" "$VERSION"
-          echo "Version: $VERSION"
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Release v$VERSION existiert bereits – es wird nur ein Test-Build erstellt."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "Neue Version v$VERSION wird veröffentlicht."
+          fi
 
       - name: Abhängigkeiten installieren
         run: npm install --no-audit --no-fund
@@ -105,7 +113,7 @@ jobs:
           if-no-files-found: error
 
       - name: GitHub-Release veröffentlichen
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.rel.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -114,5 +122,5 @@ jobs:
           # Änderungshinweise aus CHANGELOG.md (Abschnitt "## VERSION"), sonst Standardtext
           awk -v v="## $VERSION" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > "$NOTES_FILE" || true
           [ -s "$NOTES_FILE" ] || echo "Rasenzeit $VERSION" > "$NOTES_FILE"
-          gh release create "$GITHUB_REF_NAME" "${{ steps.apk.outputs.path }}" \
+          gh release create "v$VERSION" "${{ steps.apk.outputs.path }}" --target "$GITHUB_SHA" \
             --title "Rasenzeit $VERSION" --notes-file "$NOTES_FILE"
