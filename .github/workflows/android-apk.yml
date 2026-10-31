@@ -1,0 +1,118 @@
+# Baut die signierte Android-APK von Rasenzeit.
+#
+# - Push auf main:      APK bauen und als Artefakt anhängen (zum Testen).
+# - Tag v*, z. B. v0.2.0: APK bauen und als GitHub-Release veröffentlichen.
+#                        Die App findet das Release über ihre Update-Prüfung.
+#
+# Signatur: Alle APKs werden mit demselben Schlüssel signiert, damit Updates
+# über die installierte App laufen. Ist das Secret KEYSTORE_BASE64 gesetzt,
+# wird es verwendet (dazu KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD),
+# sonst der Schlüssel aus android-signing/.
+name: Android-APK
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Version aus Tag übernehmen
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node -e "const f='package.json';const p=require('./'+f);p.version=process.argv[1];require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\n')" "$VERSION"
+          echo "Version: $VERSION"
+
+      - name: Abhängigkeiten installieren
+        run: npm install --no-audit --no-fund
+
+      - name: Web-App bauen
+        run: npm run build
+
+      - name: Android-Projekt erzeugen
+        run: |
+          npx cap add android
+          node scripts/android-setup.mjs
+          npx cap sync android
+
+      - name: Signaturschlüssel bereitstellen
+        id: sign
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+            echo "file=$RUNNER_TEMP/release.jks" >> "$GITHUB_OUTPUT"
+            echo "::add-mask::$KEYSTORE_PASSWORD"
+            { echo "store_pw=$KEYSTORE_PASSWORD"; echo "alias=$KEY_ALIAS"; echo "key_pw=$KEY_PASSWORD"; } >> "$GITHUB_OUTPUT"
+          else
+            echo "file=$PWD/android-signing/rasenzeit-release.jks" >> "$GITHUB_OUTPUT"
+            node -e "const s=require('./android-signing/signing.json');console.log('store_pw='+s.storePassword);console.log('alias='+s.keyAlias);console.log('key_pw='+s.keyPassword)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Signierte APK bauen
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon \
+            -Pandroid.injected.signing.store.file="${{ steps.sign.outputs.file }}" \
+            -Pandroid.injected.signing.store.password="${{ steps.sign.outputs.store_pw }}" \
+            -Pandroid.injected.signing.key.alias="${{ steps.sign.outputs.alias }}" \
+            -Pandroid.injected.signing.key.password="${{ steps.sign.outputs.key_pw }}"
+
+      - name: APK benennen
+        id: apk
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk "out/rasenzeit-$VERSION.apk"
+          echo "path=out/rasenzeit-$VERSION.apk" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          ls -l out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rasenzeit-${{ steps.apk.outputs.version }}-apk
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+
+      - name: GitHub-Release veröffentlichen
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.apk.outputs.version }}"
+          NOTES_FILE="$RUNNER_TEMP/notes.md"
+          # Änderungshinweise aus CHANGELOG.md (Abschnitt "## VERSION"), sonst Standardtext
+          awk -v v="## $VERSION" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > "$NOTES_FILE" || true
+          [ -s "$NOTES_FILE" ] || echo "Rasenzeit $VERSION" > "$NOTES_FILE"
+          gh release create "$GITHUB_REF_NAME" "${{ steps.apk.outputs.path }}" \
+            --title "Rasenzeit $VERSION" --notes-file "$NOTES_FILE"

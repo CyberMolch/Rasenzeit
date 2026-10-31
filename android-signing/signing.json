@@ -1,0 +1,6 @@
+{
+  "storeFile": "android-signing/rasenzeit-release.jks",
+  "storePassword": "rasenzeit-3OEXHkDTKfj",
+  "keyAlias": "rasenzeit",
+  "keyPassword": "rasenzeit-3OEXHkDTKfj"
+}
