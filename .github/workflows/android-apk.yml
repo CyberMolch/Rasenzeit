@@ -25,22 +25,26 @@ concurrency:
 
 jobs:
   apk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
 
-      - uses: android-actions/setup-android@v3
+      - name: Android SDK prüfen
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          ls "${ANDROID_HOME:-$ANDROID_SDK_ROOT}/platforms" | tail -3
+          java -version 2>&1 | head -1
 
       - name: Prüfen, ob diese Version schon veröffentlicht ist
         id: rel
@@ -58,16 +62,16 @@ jobs:
           fi
 
       - name: Abhängigkeiten installieren
-        run: npm install --no-audit --no-fund
+        run: scripts/ci-step.sh "npm install" npm install --no-audit --no-fund
 
       - name: Web-App bauen
-        run: npm run build
+        run: scripts/ci-step.sh "Web-Build" npm run build
 
       - name: Android-Projekt erzeugen
         run: |
-          npx cap add android
-          node scripts/android-setup.mjs
-          npx cap sync android
+          scripts/ci-step.sh "cap add android" npx cap add android
+          scripts/ci-step.sh "Android-Anpassung" node scripts/android-setup.mjs
+          scripts/ci-step.sh "cap sync" npx cap sync android
 
       - name: Signaturschlüssel bereitstellen
         id: sign
@@ -90,7 +94,7 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon \
+          ../scripts/ci-step.sh "Gradle-Build" ./gradlew assembleRelease --no-daemon \
             -Pandroid.injected.signing.store.file="${{ steps.sign.outputs.file }}" \
             -Pandroid.injected.signing.store.password="${{ steps.sign.outputs.store_pw }}" \
             -Pandroid.injected.signing.key.alias="${{ steps.sign.outputs.alias }}" \
