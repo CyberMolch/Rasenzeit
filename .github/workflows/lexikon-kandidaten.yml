@@ -1,0 +1,30 @@
+# Sucht Bildkandidaten und gleicht Namen ab. Ergebnis im Branch "bildauswahl".
+name: Lexikon – Bildkandidaten
+
+on:
+  push:
+    branches: [main]
+    paths: ['lexikon/kandidaten.anfordern']
+
+permissions:
+  contents: write
+
+jobs:
+  kandidaten:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Kandidaten suchen
+        run: scripts/ci-step.sh "Kandidaten" node scripts/lexikon-bilder.mjs kandidaten
+      - name: In Branch bildauswahl ablegen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan bildauswahl-neu
+          git rm -rq --cached .
+          git add kandidaten
+          git commit -qm "Bildkandidaten $(date -u +%F)"
+          git push -f origin HEAD:bildauswahl

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "note": "Stammdaten der Lexikon-Arten. Wird von der App und von scripts/lexikon-bilder.mjs (GBIF-Abgleich, Bildsuche) verwendet. IDs sind stabil und dürfen nicht geändert werden.",
+  "taxa": [
+    { "id": "gundermann", "nameDe": "Gundermann", "scientific": "Glechoma hederacea", "authority": "L.", "rank": "Art", "family": "Lippenblütler (Lamiaceae)", "commons": ["Glechoma hederacea"], "wiki": "Gundermann" },
+    { "id": "weissklee", "nameDe": "Weißklee", "scientific": "Trifolium repens", "authority": "L.", "rank": "Art", "family": "Hülsenfrüchtler (Fabaceae)", "commons": ["Trifolium repens"], "wiki": "Weißklee" },
+    { "id": "rotklee", "nameDe": "Rotklee", "scientific": "Trifolium pratense", "authority": "L.", "rank": "Art", "family": "Hülsenfrüchtler (Fabaceae)", "commons": ["Trifolium pratense"], "wiki": "Rotklee" },
+    { "id": "gaensebluemchen", "nameDe": "Gänseblümchen", "scientific": "Bellis perennis", "authority": "L.", "rank": "Art", "family": "Korbblütler (Asteraceae)", "commons": ["Bellis perennis"], "wiki": "Gänseblümchen" },
+    { "id": "loewenzahn", "nameDe": "Gewöhnlicher Löwenzahn", "scientific": "Taraxacum sect. Ruderalia", "authority": "Kirschner, H.Øllg. & Štěpánek", "gbif": "Taraxacum officinale", "rank": "Artengruppe", "family": "Korbblütler (Asteraceae)", "commons": ["Taraxacum officinale", "Taraxacum sect. Taraxacum"], "wiki": "Gewöhnlicher Löwenzahn" },
+    { "id": "breitwegerich", "nameDe": "Breitwegerich", "scientific": "Plantago major", "authority": "L.", "rank": "Art", "family": "Wegerichgewächse (Plantaginaceae)", "commons": ["Plantago major"], "wiki": "Breitwegerich" },
+    { "id": "spitzwegerich", "nameDe": "Spitzwegerich", "scientific": "Plantago lanceolata", "authority": "L.", "rank": "Art", "family": "Wegerichgewächse (Plantaginaceae)", "commons": ["Plantago lanceolata"], "wiki": "Spitzwegerich" },
+    { "id": "kriechender-hahnenfuss", "nameDe": "Kriechender Hahnenfuß", "scientific": "Ranunculus repens", "authority": "L.", "rank": "Art", "family": "Hahnenfußgewächse (Ranunculaceae)", "commons": ["Ranunculus repens"], "wiki": "Kriechender Hahnenfuß" },
+    { "id": "scharfer-hahnenfuss", "nameDe": "Scharfer Hahnenfuß", "scientific": "Ranunculus acris", "authority": "L.", "rank": "Art", "family": "Hahnenfußgewächse (Ranunculaceae)", "commons": ["Ranunculus acris"], "wiki": "Scharfer Hahnenfuß" },
+    { "id": "vogelmiere", "nameDe": "Gewöhnliche Vogelmiere", "scientific": "Stellaria media", "authority": "(L.) Vill.", "rank": "Artengruppe", "family": "Nelkengewächse (Caryophyllaceae)", "commons": ["Stellaria media"], "wiki": "Vogelmiere" },
+    { "id": "braunelle", "nameDe": "Gewöhnliche Braunelle", "scientific": "Prunella vulgaris", "authority": "L.", "rank": "Art", "family": "Lippenblütler (Lamiaceae)", "commons": ["Prunella vulgaris"], "wiki": "Kleine Braunelle" },
+    { "id": "kriechendes-fingerkraut", "nameDe": "Kriechendes Fingerkraut", "scientific": "Potentilla reptans", "authority": "L.", "rank": "Art", "family": "Rosengewächse (Rosaceae)", "commons": ["Potentilla reptans"], "wiki": "Kriechendes Fingerkraut" },
+    { "id": "gaensefingerkraut", "nameDe": "Gänsefingerkraut", "scientific": "Argentina anserina", "authority": "(L.) Rydb.", "gbif": "Argentina anserina", "rank": "Art", "family": "Rosengewächse (Rosaceae)", "commons": ["Argentina anserina", "Potentilla anserina"], "wiki": "Gänsefingerkraut" },
+    { "id": "horn-sauerklee", "nameDe": "Horn-Sauerklee", "scientific": "Oxalis corniculata", "authority": "L.", "rank": "Art", "family": "Sauerkleegewächse (Oxalidaceae)", "commons": ["Oxalis corniculata"], "wiki": "Horn-Sauerklee" },
+    { "id": "kleiner-sauerampfer", "nameDe": "Kleiner Sauerampfer", "scientific": "Rumex acetosella", "authority": "L.", "rank": "Artengruppe", "family": "Knöterichgewächse (Polygonaceae)", "commons": ["Rumex acetosella"], "wiki": "Kleiner Sauerampfer" },
+    { "id": "quendel-ehrenpreis", "nameDe": "Quendel-Ehrenpreis", "scientific": "Veronica serpyllifolia", "authority": "L.", "rank": "Art", "family": "Wegerichgewächse (Plantaginaceae)", "commons": ["Veronica serpyllifolia"], "wiki": "Quendel-Ehrenpreis" },
+    { "id": "faden-ehrenpreis", "nameDe": "Faden-Ehrenpreis", "scientific": "Veronica filiformis", "authority": "Sm.", "rank": "Art", "family": "Wegerichgewächse (Plantaginaceae)", "commons": ["Veronica filiformis"], "wiki": "Faden-Ehrenpreis" },
+    { "id": "fingerhirse", "nameDe": "Blutrote Fingerhirse", "scientific": "Digitaria sanguinalis", "authority": "(L.) Scop.", "rank": "Art", "family": "Süßgräser (Poaceae)", "commons": ["Digitaria sanguinalis"], "wiki": "Blutrote Fingerhirse" },
+    { "id": "huehnerhirse", "nameDe": "Hühnerhirse", "scientific": "Echinochloa crus-galli", "authority": "(L.) P.Beauv.", "rank": "Art", "family": "Süßgräser (Poaceae)", "commons": ["Echinochloa crus-galli"], "wiki": "Gewöhnliche Hühnerhirse" },
+    { "id": "einjaehriges-rispengras", "nameDe": "Einjähriges Rispengras", "scientific": "Poa annua", "authority": "L.", "rank": "Art", "family": "Süßgräser (Poaceae)", "commons": ["Poa annua"], "wiki": "Einjähriges Rispengras" }
+  ]
+}

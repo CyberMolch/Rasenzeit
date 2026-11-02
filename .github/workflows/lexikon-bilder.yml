@@ -1,0 +1,34 @@
+# Übernimmt die ausgewählten Referenzbilder samt Lizenznachweisen nach main.
+name: Lexikon – Bilder übernehmen
+
+on:
+  push:
+    branches: [main]
+    paths: ['lexikon/bildauswahl.json']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lexikon-bilder
+  cancel-in-progress: false
+
+jobs:
+  uebernehmen:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Bilder und Nachweise laden
+        run: scripts/ci-step.sh "Bilder übernehmen" node scripts/lexikon-bilder.mjs uebernehmen
+      - name: Committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/lexikon src/content/lexicon/images.json
+          if git diff --cached --quiet; then echo "Keine Änderungen"; exit 0; fi
+          git commit -qm "Lexikon: Referenzbilder und Lizenznachweise aktualisiert"
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0; sleep 5; done
+          exit 1
