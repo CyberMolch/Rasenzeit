@@ -1,0 +1,422 @@
+[
+  {
+    "id": "gundermann",
+    "queried": "Glechoma hederacea",
+    "gbif": {
+      "usageKey": 2926557,
+      "scientificName": "Glechoma hederacea L.",
+      "canonicalName": "Glechoma hederacea",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Lamiaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/2926557"
+    },
+    "wikipedia": {
+      "title": "Gundermann",
+      "url": "https://de.wikipedia.org/wiki/Gundermann"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "weissklee",
+    "queried": "Trifolium repens",
+    "gbif": {
+      "usageKey": 5358748,
+      "scientificName": "Trifolium repens L.",
+      "canonicalName": "Trifolium repens",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Fabaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/5358748"
+    },
+    "wikipedia": {
+      "title": "Weißklee",
+      "url": "https://de.wikipedia.org/wiki/Wei%C3%9Fklee"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "rotklee",
+    "queried": "Trifolium pratense",
+    "gbif": {
+      "usageKey": 8324121,
+      "scientificName": "Trifolium pratense L.",
+      "canonicalName": "Trifolium pratense",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Fabaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/8324121"
+    },
+    "wikipedia": {
+      "title": "Wiesenklee",
+      "url": "https://de.wikipedia.org/wiki/Wiesenklee"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "gaensebluemchen",
+    "queried": "Bellis perennis",
+    "gbif": {
+      "usageKey": 3117424,
+      "scientificName": "Bellis perennis L.",
+      "canonicalName": "Bellis perennis",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Asteraceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/3117424"
+    },
+    "wikipedia": {
+      "title": "Gänseblümchen",
+      "url": "https://de.wikipedia.org/wiki/G%C3%A4nsebl%C3%BCmchen"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "loewenzahn",
+    "queried": "Taraxacum officinale",
+    "gbif": {
+      "usageKey": 5394163,
+      "scientificName": "Taraxacum officinale Weber ex F.H.Wigg.",
+      "canonicalName": "Taraxacum officinale",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Asteraceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/5394163"
+    },
+    "wikipedia": {
+      "title": "Gewöhnlicher Löwenzahn",
+      "url": "https://de.wikipedia.org/wiki/Gew%C3%B6hnlicher_L%C3%B6wenzahn"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "breitwegerich",
+    "queried": "Plantago major",
+    "gbif": {
+      "usageKey": 3189767,
+      "scientificName": "Plantago major L.",
+      "canonicalName": "Plantago major",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Plantaginaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/3189767"
+    },
+    "wikipedia": {
+      "title": "Breitwegerich",
+      "url": "https://de.wikipedia.org/wiki/Breitwegerich"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "spitzwegerich",
+    "queried": "Plantago lanceolata",
+    "gbif": {
+      "usageKey": 8208358,
+      "scientificName": "Plantago lanceolata L.",
+      "canonicalName": "Plantago lanceolata",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Plantaginaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/8208358"
+    },
+    "wikipedia": {
+      "title": "Spitzwegerich",
+      "url": "https://de.wikipedia.org/wiki/Spitzwegerich"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "kriechender-hahnenfuss",
+    "queried": "Ranunculus repens",
+    "gbif": {
+      "usageKey": 3033339,
+      "scientificName": "Ranunculus repens L.",
+      "canonicalName": "Ranunculus repens",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Ranunculaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/3033339"
+    },
+    "wikipedia": {
+      "title": "Kriechender Hahnenfuß",
+      "url": "https://de.wikipedia.org/wiki/Kriechender_Hahnenfu%C3%9F"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "scharfer-hahnenfuss",
+    "queried": "Ranunculus acris",
+    "gbif": {
+      "usageKey": 3033363,
+      "scientificName": "Ranunculus acris L.",
+      "canonicalName": "Ranunculus acris",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Ranunculaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/3033363"
+    },
+    "wikipedia": {
+      "title": "Scharfer Hahnenfuß",
+      "url": "https://de.wikipedia.org/wiki/Scharfer_Hahnenfu%C3%9F"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "vogelmiere",
+    "queried": "Stellaria media",
+    "gbif": {
+      "usageKey": 5384604,
+      "scientificName": "Stellaria media (L.) Vill.",
+      "canonicalName": "Stellaria media",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Caryophyllaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/5384604"
+    },
+    "wikipedia": {
+      "title": "Gewöhnliche Vogelmiere",
+      "url": "https://de.wikipedia.org/wiki/Gew%C3%B6hnliche_Vogelmiere"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "braunelle",
+    "queried": "Prunella vulgaris",
+    "gbif": {
+      "usageKey": 5341297,
+      "scientificName": "Prunella vulgaris L.",
+      "canonicalName": "Prunella vulgaris",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Lamiaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/5341297"
+    },
+    "wikipedia": {
+      "title": "Kleine Braunelle",
+      "url": "https://de.wikipedia.org/wiki/Kleine_Braunelle"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "kriechendes-fingerkraut",
+    "queried": "Potentilla reptans",
+    "gbif": {
+      "usageKey": 5367273,
+      "scientificName": "Potentilla reptans L.",
+      "canonicalName": "Potentilla reptans",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Rosaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/5367273"
+    },
+    "wikipedia": {
+      "title": "Kriechendes Fingerkraut",
+      "url": "https://de.wikipedia.org/wiki/Kriechendes_Fingerkraut"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "gaensefingerkraut",
+    "queried": "Argentina anserina",
+    "gbif": {
+      "usageKey": 5367246,
+      "scientificName": "Argentina anserina (L.) Rydb.",
+      "canonicalName": "Argentina anserina",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Rosaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/5367246"
+    },
+    "wikipedia": {
+      "title": "Gänsefingerkraut",
+      "url": "https://de.wikipedia.org/wiki/G%C3%A4nsefingerkraut"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "horn-sauerklee",
+    "queried": "Oxalis corniculata",
+    "gbif": {
+      "usageKey": 8427624,
+      "scientificName": "Oxalis corniculata L.",
+      "canonicalName": "Oxalis corniculata",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Oxalidaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/8427624"
+    },
+    "wikipedia": {
+      "title": "Horn-Sauerklee",
+      "url": "https://de.wikipedia.org/wiki/Horn-Sauerklee"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "kleiner-sauerampfer",
+    "queried": "Rumex acetosella",
+    "gbif": {
+      "usageKey": 2888995,
+      "scientificName": "Rumex acetosella L.",
+      "canonicalName": "Rumex acetosella",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Polygonaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/2888995"
+    },
+    "wikipedia": {
+      "title": "Kleiner Sauerampfer",
+      "url": "https://de.wikipedia.org/wiki/Kleiner_Sauerampfer"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "quendel-ehrenpreis",
+    "queried": "Veronica serpyllifolia",
+    "gbif": {
+      "usageKey": 3172057,
+      "scientificName": "Veronica serpyllifolia L.",
+      "canonicalName": "Veronica serpyllifolia",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Plantaginaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/3172057"
+    },
+    "wikipedia": {
+      "title": "Quendel-Ehrenpreis",
+      "url": "https://de.wikipedia.org/wiki/Quendel-Ehrenpreis"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "faden-ehrenpreis",
+    "queried": "Veronica filiformis",
+    "gbif": {
+      "usageKey": 3172100,
+      "scientificName": "Veronica filiformis Sm.",
+      "canonicalName": "Veronica filiformis",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Plantaginaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/3172100"
+    },
+    "wikipedia": {
+      "title": "Faden-Ehrenpreis",
+      "url": "https://de.wikipedia.org/wiki/Faden-Ehrenpreis"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "fingerhirse",
+    "queried": "Digitaria sanguinalis",
+    "gbif": {
+      "usageKey": 5289972,
+      "scientificName": "Digitaria sanguinalis (L.) Scop.",
+      "canonicalName": "Digitaria sanguinalis",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Poaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/5289972"
+    },
+    "wikipedia": {
+      "title": "Blutrote Fingerhirse",
+      "url": "https://de.wikipedia.org/wiki/Blutrote_Fingerhirse"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "huehnerhirse",
+    "queried": "Echinochloa crus-galli",
+    "gbif": {
+      "usageKey": 2702808,
+      "scientificName": "Echinochloa crus-galli (L.) P.Beauv.",
+      "canonicalName": "Echinochloa crus-galli",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Poaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/2702808"
+    },
+    "wikipedia": {
+      "title": "Hühnerhirse",
+      "url": "https://de.wikipedia.org/wiki/H%C3%BChnerhirse"
+    },
+    "checkedAt": "2026-11-02"
+  },
+  {
+    "id": "einjaehriges-rispengras",
+    "queried": "Poa annua",
+    "gbif": {
+      "usageKey": 2704179,
+      "scientificName": "Poa annua L.",
+      "canonicalName": "Poa annua",
+      "rank": "SPECIES",
+      "status": "ACCEPTED",
+      "matchType": "EXACT",
+      "family": "Poaceae",
+      "acceptedUsageKey": null,
+      "acceptedName": null,
+      "url": "https://www.gbif.org/species/2704179"
+    },
+    "wikipedia": {
+      "title": "Einjähriges Rispengras",
+      "url": "https://de.wikipedia.org/wiki/Einj%C3%A4hriges_Rispengras"
+    },
+    "checkedAt": "2026-11-02"
+  }
+]
