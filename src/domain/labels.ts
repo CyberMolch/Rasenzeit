@@ -62,7 +62,7 @@ export const WATER_LABEL: Record<WaterBehaviour, string> = {
 };
 
 export const COMPACTION_LABEL: Record<Compaction, string> = {
-  vermutet: 'Vermutet',
+  vermutet: 'Vermutete Zuordnung',
   bestaetigt: 'Durch Untersuchung bestätigt',
   keine: 'Keine Verdichtung festgestellt',
   unbekannt: 'Nicht bekannt',
@@ -130,9 +130,9 @@ export const EXTENT_LABEL: Record<Extent, string> = {
 };
 
 export const IDENT_LABEL: Record<IdentificationState, string> = {
-  vermutet: 'Vermutet',
-  eigene_bestimmung: 'Eigene Bestimmung',
-  unbestimmt: 'Noch unbestimmt',
+  vermutet: 'Vermutete Zuordnung',
+  eigene_bestimmung: 'Selbst sicher bestimmt',
+  unbestimmt: 'Ohne Zuordnung',
 };
 
 export function options<T extends string>(map: Record<T, string>): { value: T; label: string }[] {

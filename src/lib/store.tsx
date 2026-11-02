@@ -20,9 +20,10 @@ export interface Toast { id: string; text: string; kind: 'ok' | 'error' | 'info'
 
 const EMPTY: AppData = {
   user: null, areas: [], measurements: [], products: [], devices: [], tasks: [], journal: [], observations: [], attachments: [],
+ favorites: [],
 };
 
-type Collection = Exclude<keyof AppData, 'user' | 'attachments'>;
+type Collection = Exclude<keyof AppData, 'user' | 'attachments' | 'favorites'>;
 const STORE_OF: Record<Collection, StoreName> = {
   areas: 'areas', measurements: 'measurements', products: 'products', devices: 'devices',
   tasks: 'tasks', journal: 'journal', observations: 'observations',
@@ -62,6 +63,7 @@ export interface StoreApi {
   replaceAll: (data: AppData, blobs: Map<string, Blob>) => Promise<void>;
   mergeIn: (data: AppData, blobs: Map<string, Blob>) => Promise<{ added: number; skipped: number }>;
   resetAll: () => Promise<void>;
+  toggleFavorite: (plantId: string) => Promise<boolean>;
   reload: () => Promise<void>;
 }
 
@@ -119,22 +121,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const load = useCallback(async () => {
     try {
-      const [user, areas, measurements, products, devices, tasks, journal, observations, attachments] = await Promise.all([
+      const [user, areas, measurements, products, devices, tasks, journal, observations, attachments, favRec] = await Promise.all([
         db.getUser(),
         db.getAll<LawnArea>('areas'), db.getAll<SoilMeasurement>('measurements'), db.getAll<Product>('products'),
         db.getAll<Device>('devices'), db.getAll<Task>('tasks'), db.getAll<JournalEntry>('journal'),
-        db.getAll<PlantObservation>('observations'), db.getAttachmentMetas(),
+        db.getAll<PlantObservation>('observations'), db.getAttachmentMetas(), db.getMeta<{ id: string; plantIds: string[] }>('favorites'),
       ]);
-      const next: AppData = { user: user ? { ...user, dismissedRules: user.dismissedRules ?? [] } : null, areas, measurements, products, devices, tasks, journal, observations, attachments };
+      const next: AppData = { user: user ? { ...user, dismissedRules: user.dismissedRules ?? [] } : null, areas, measurements, products, devices, tasks, journal, observations, attachments, favorites: favRec?.plantIds ?? [] };
       ref.current = next;
       setData(next);
       setReady(true);
       setFatal(null);
+      // Verwaiste Anhänge (z. B. aus abgebrochenen Formularen) nach einer Stunde entfernen
+      const used = attachmentIdsOf(next);
+      const cutoff = Date.now() - 60 * 60 * 1000;
+      const orphans = attachments.filter((a) => !used.has(a.id) && Date.parse(a.createdAt) < cutoff).map((a) => a.id);
+      if (orphans.length) {
+        void db.removeMany(orphans.map((id) => ({ store: 'attachments' as const, id }))).then(() => {
+          commit((d) => ({ ...d, attachments: d.attachments.filter((x) => !orphans.includes(x.id)) }));
+        }).catch(() => undefined);
+      }
     } catch (e) {
       setFatal(e instanceof Error ? e.message : 'Der lokale Speicher ist nicht verfügbar.');
       setReady(true);
     }
-  }, []);
+  }, [commit]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -417,6 +428,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const writeAll = useCallback(async (dataIn: AppData, blobs: Map<string, Blob>) => {
     const puts: { store: StoreName | 'meta'; value: { id: string } }[] = [];
     if (dataIn.user) puts.push({ store: 'meta', value: dataIn.user });
+    if (dataIn.favorites?.length) puts.push({ store: 'meta', value: { id: 'favorites', plantIds: dataIn.favorites } as { id: string } });
     (Object.keys(STORE_OF) as Collection[]).forEach((c) => (dataIn[c] as { id: string }[]).forEach((v) => puts.push({ store: STORE_OF[c], value: v })));
     await db.putMany(puts);
     for (const meta of dataIn.attachments) {
@@ -446,6 +458,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       tasks: pick(dataIn.tasks, cur.tasks), journal: pick(dataIn.journal, cur.journal),
       observations: pick(dataIn.observations, cur.observations),
       attachments: dataIn.attachments.filter((a) => blobs.has(a.id) && !cur.attachments.some((c) => c.id === a.id)),
+      favorites: Array.from(new Set([...cur.favorites, ...(dataIn.favorites ?? [])])),
     };
     await writeAll(part, blobs);
     await load();
@@ -463,8 +476,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return data.areas.find((a) => a.id === data.user!.activeAreaId) ?? data.areas[0] ?? null;
   }, [data.areas, data.user]);
 
+  const toggleFavorite = useCallback(async (plantId: string) => {
+    const cur = ref.current.favorites;
+    const on = !cur.includes(plantId);
+    const next = on ? [...cur, plantId] : cur.filter((x) => x !== plantId);
+    await db.put('meta', { id: 'favorites', plantIds: next });
+    commit((d) => ({ ...d, favorites: next }));
+    return on;
+  }, [commit]);
+
   const api: StoreApi = {
-    ready, fatal, data, activeArea, toasts, toast, dismissToast, run,
+    ready, fatal, data, activeArea, toasts, toast, dismissToast, run, toggleFavorite,
     saveUser, createUser, saveArea, deleteArea, setActiveArea, save, del,
     addAttachment, addAttachmentBlob, deleteAttachments,
     completeTask, reopenTask, postponeTask, deleteTask, deleteJournalEntry, deleteObservation, deleteMeasurement,

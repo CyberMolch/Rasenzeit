@@ -28,6 +28,36 @@ npm run android:apk          # Debug-APK: android/app/build/outputs/apk/debug/
 npm run build && npm run dev # Web-Version unter http://localhost:4173
 ```
 
+## Pflanzenlexikon (ab 0.2.0)
+
+Rasenhilfe → Pflanzenlexikon: 20 typische Pflanzen im Rasen (redaktionelle Auswahl, keine Häufigkeitsrangliste; Moose nicht enthalten).
+
+| Ebene | Datei |
+|---|---|
+| Stammdaten, stabile IDs, Taxonomie | `src/content/lexicon/taxa.json` |
+| Redaktionelle Steckbriefe | `src/content/lexicon/plants.ts` |
+| Such- und Filtermerkmale | `src/content/lexicon/filters.ts` |
+| Bilder, Lizenznachweise, GBIF-Abgleich (automatisch erzeugt) | `src/content/lexicon/images.json`, `public/lexikon/` |
+| Favoriten, Beobachtungen, eigene Fotos | IndexedDB (`meta/favorites`, `observations`, `attachments`) |
+
+**Prüfstand:** Alle 20 wissenschaftlichen Namen stimmen exakt mit akzeptierten Namen in GBIF überein (Abgleich 03.11.2026; Löwenzahn als Artengruppe *Taraxacum* sect. *Ruderalia*, abgefragt als *Taraxacum officinale*; Gänsefingerkraut als *Argentina anserina*, Synonym *Potentilla anserina*). Die Steckbrieftexte sind redaktionelle Entwürfe und als „Entwurf – fachlich noch nicht geprüft“ gekennzeichnet.
+
+**Bilder:** 70 Fotos von Wikimedia Commons, ausschließlich frei für kommerzielle Nutzung (CC0: 36, CC BY-SA 3.0: 15, CC BY-SA 4.0: 10, CC BY 2.0: 3, CC BY 3.0: 2, CC BY-SA 2.0: 1, Public domain: 1, CC BY 4.0: 1, CC BY 2.5: 1). Urheber, Lizenz, Lizenzlink, Quellseite und Änderungen stammen direkt aus der Commons-API; jedes Bild wurde auf Art und Motiv gesichtet (keine botanische Fachprüfung). NC-/ND-Lizenzen werden automatisch abgelehnt.
+
+**Noch fehlende Referenzbilder** (in der App als „Referenzbild noch nicht verfügbar“):
+
+| Pflanze | Fehlt |
+|---|---|
+| Kriechender Hahnenfuß | Wuchsform/Ausläufer |
+| Gewöhnliche Braunelle | Wuchsform/Ausläufer |
+| Kleiner Sauerampfer | Blattdetail, Wuchsform/Ausläufer |
+| Quendel-Ehrenpreis | Wuchsform/Ausläufer |
+| Blutrote Fingerhirse | Blattdetail, Wuchsform/Ausläufer |
+| Hühnerhirse | Blattdetail, Wuchsform/Ausläufer |
+| Einjähriges Rispengras | Blattdetail |
+
+Ablauf für neue Bilder: siehe `lexikon/README.md`.
+
 ## Projektstruktur
 
 | Ordner | Inhalt |

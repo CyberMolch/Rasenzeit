@@ -1,7 +1,8 @@
 // Build ohne Vite: bündelt mit esbuild in eine einzelne, eigenständige index.html (dist/).
 // Funktioniert offline und als Grundlage für die Android-App (Capacitor: webDir = dist).
 import { build } from 'esbuild';
-import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, rm, cp } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 
 const watch = process.argv.includes('--dev');
 const pkg = JSON.parse(await readFile('package.json', 'utf8'));
@@ -28,4 +29,6 @@ const css = result.outputFiles.find((f) => f.path.endsWith('.css'))?.text ?? '';
 let html = await readFile('index.html', 'utf8');
 html = html.replace('<!--STYLES-->', () => `<style>${css}</style>`).replace('<!--SCRIPT-->', () => `<script>${js.replace(/<\/script/g, '<\\/script')}</script>`);
 await writeFile('dist/index.html', html);
+// Referenzbilder und weitere statische Dateien
+if (existsSync('public')) await cp('public', 'dist', { recursive: true, filter: (src) => !src.endsWith('.gitkeep') });
 console.log(`dist/index.html: ${(html.length / 1024).toFixed(0)} KB`);

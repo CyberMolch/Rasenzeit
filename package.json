@@ -1,7 +1,7 @@
 {
   "name": "rasenzeit",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rasenzeit – unabhängiger Pflegebegleiter für den Rasen (Web-App und Android-App)",
   "scripts": {
     "build": "node build.mjs",

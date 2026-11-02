@@ -1,102 +1,143 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useStore } from '../lib/store';
 import { Icon } from '../ui/icons';
-import { AttachmentImage, ConfirmDialog, Dialog, Empty, Field, IconBubble, PhotoEditor, RadioGroup, SubHead } from '../ui/components';
+import { AttachmentImage, ConfirmDialog, Dialog, Empty, Field, IconBubble, RadioGroup, SubHead } from '../ui/components';
+import { PendingPhotos, persistFiles } from '../ui/media';
 import type { Extent, IdentificationState, ObservationUpdate, PlantObservation, Task } from '../domain/types';
 import { EXTENT_LABEL, IDENT_LABEL, options } from '../domain/labels';
-import { PLANTS, getPlant } from '../content/plants';
+import { ENTRIES, getEntry } from '../content/lexicon/plants';
 import { uid } from '../lib/ids';
 import { addDays, fmtDate, isValidISO, nowStamp, today } from '../lib/dates';
 import { navigate } from '../lib/router';
 
 export function plantLabel(o: PlantObservation): string {
-  const p = getPlant(o.plantId);
+  const p = getEntry(o.plantId);
   if (!p) return 'Unbestimmte Pflanze';
-  return `${p.name}${o.identification === 'vermutet' ? ' (vermutet)' : ''}`;
+  return `${p.taxon.nameDe}${o.identification === 'vermutet' ? ' (vermutet)' : ''}`;
 }
 
-export function ObservationForm({ open, onClose, plantId = null, identification, existing }: {
+const SORTED_ENTRIES = [...ENTRIES].sort((a, b) => a.taxon.nameDe.localeCompare(b.taxon.nameDe, 'de'));
+
+export function PlantSelect({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <select id={id} className="select" value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">Ohne Zuordnung (unbestimmte Pflanze)</option>
+      <optgroup label="Kräuter">{SORTED_ENTRIES.filter((e) => e.category === 'kraut').map((e) => <option key={e.id} value={e.id}>{e.taxon.nameDe}</option>)}</optgroup>
+      <optgroup label="Gräser">{SORTED_ENTRIES.filter((e) => e.category === 'gras').map((e) => <option key={e.id} value={e.id}>{e.taxon.nameDe}</option>)}</optgroup>
+    </select>
+  );
+}
+
+export function ObservationForm({ open, onClose, plantId = null, identification, existing, initialFiles, onSaved }: {
   open: boolean; onClose: () => void; plantId?: string | null; identification?: IdentificationState; existing?: PlantObservation;
+  initialFiles?: File[]; onSaved?: (o: PlantObservation) => void;
 }) {
   const store = useStore();
   const area = store.activeArea!;
+  // Stabile IDs: wiederholtes Speichern aktualisiert dieselbe Beobachtung statt eine neue anzulegen.
+  const ids = useRef({ obs: existing?.id ?? uid('obs'), upd: uid('upd'), jrn: uid('jrn') });
+  const saved = useRef<{ photoIds: string[] } | null>(null);
+  const [busy, setBusy] = useState(false);
   const [f, setF] = useState({
+    areaId: existing?.areaId ?? area.id,
     plantId: existing?.plantId ?? plantId ?? '',
     identification: existing?.identification ?? identification ?? (plantId ? 'vermutet' : 'unbestimmt') as IdentificationState,
     location: existing?.location ?? '',
     date: today(),
     extent: 'unbekannt' as Extent,
     note: '',
-    photos: [] as string[],
+    files: initialFiles ?? [] as File[],
     journal: true,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((x) => ({ ...x, [k]: v }));
 
   const submit = async () => {
+    if (busy) return;
     const e: Record<string, string> = {};
-    if (!f.location.trim()) e.location = 'Beschreibe kurz, wo die Pflanze wächst.';
+    if (!f.location.trim()) e.location = 'Beschreibe kurz, wo die Pflanze wächst, z. B. „am Gartenzaun“.';
     if (!existing && (!isValidISO(f.date) || f.date > today())) e.date = 'Bitte ein gültiges Datum, nicht in der Zukunft.';
     setErrors(e);
     if (Object.keys(e).length) return;
+    setBusy(true);
     const stamp = nowStamp();
     const ident: IdentificationState = f.plantId ? (f.identification === 'unbestimmt' ? 'vermutet' : f.identification) : 'unbestimmt';
     if (existing) {
-      const ok = await store.run(() => store.save('observations', { ...existing, plantId: f.plantId || null, identification: ident, location: f.location.trim(), updatedAt: stamp }), 'Beobachtung gespeichert.');
+      const prevPlant = existing.plantId;
+      const ok = await store.run(async () => {
+        const next = { ...existing, areaId: f.areaId, plantId: f.plantId || null, identification: ident, location: f.location.trim(), updatedAt: stamp };
+        await store.save('observations', next);
+        if (prevPlant !== next.plantId) {
+          // Änderung der Zuordnung im Verlauf festhalten (keine Bestätigung der Art)
+          const note = `Zuordnung geändert: ${getEntry(prevPlant)?.taxon.nameDe ?? 'unbestimmt'} → ${getEntry(next.plantId)?.taxon.nameDe ?? 'unbestimmt'} (${IDENT_LABEL[ident]}).`;
+          await store.save('observations', { ...next, updates: [...next.updates, { id: uid('upd'), date: today(), kind: 'befund', extent: null, note, photoIds: [] }] });
+        }
+      }, 'Beobachtung gespeichert.');
+      setBusy(false);
       if (ok !== undefined) onClose();
       return;
     }
-    const obs: PlantObservation = {
-      id: uid('obs'), areaId: area.id, plantId: f.plantId || null, identification: ident, location: f.location.trim(),
-      updates: [{ id: uid('upd'), date: f.date, kind: 'befund', extent: f.extent, note: f.note.trim(), photoIds: f.photos }],
-      createdAt: stamp, updatedAt: stamp,
-    };
+    let result: PlantObservation | null = null;
     const ok = await store.run(async () => {
+      if (!saved.current) saved.current = { photoIds: await persistFiles(store.addAttachment, f.files) };
+      const photoIds = saved.current.photoIds;
+      const obs: PlantObservation = {
+        id: ids.current.obs, areaId: f.areaId, plantId: f.plantId || null, identification: ident, location: f.location.trim(),
+        updates: [{ id: ids.current.upd, date: f.date, kind: 'befund', extent: f.extent, note: f.note.trim(), photoIds }],
+        createdAt: stamp, updatedAt: stamp,
+      };
       await store.save('observations', obs);
       if (f.journal) {
         await store.save('journal', {
-          id: uid('jrn'), areaId: area.id, date: f.date, type: 'beobachtung', title: `Fund: ${plantLabel(obs)}`,
+          id: ids.current.jrn, areaId: f.areaId, date: f.date, type: 'beobachtung', title: `Fund: ${plantLabel(obs)}`,
           note: [f.location.trim(), f.note.trim()].filter(Boolean).join(' – '), productId: null, amount: null, amountUnit: '',
-          photoIds: f.photos, spot: f.location.trim(), linkedTaskId: null, linkedObservationId: obs.id, linkedMeasurementId: null,
+          photoIds, spot: f.location.trim(), linkedTaskId: null, linkedObservationId: obs.id, linkedMeasurementId: null,
           createdAt: stamp, updatedAt: stamp,
         });
       }
+      result = obs;
     }, 'Beobachtung gespeichert.');
-    if (ok !== undefined) { onClose(); navigate(`/hilfe/beobachtung/${obs.id}`); }
+    setBusy(false);
+    if (ok !== undefined && result) {
+      onClose();
+      if (onSaved) onSaved(result); else navigate(`/hilfe/beobachtung/${(result as PlantObservation).id}`);
+    }
   };
 
+  const entry = getEntry(f.plantId);
   return (
-    <Dialog open={open} onClose={onClose} title={existing ? 'Beobachtung bearbeiten' : 'Fund dokumentieren'}
-      footer={<><button className="btn btn-outline" onClick={onClose}>Abbrechen</button><button className="btn btn-primary" onClick={() => void submit()}>Speichern</button></>}>
+    <Dialog open={open} onClose={onClose} title={existing ? 'Beobachtung bearbeiten' : 'Als Beobachtung speichern'}
+      footer={<><button className="btn btn-outline" onClick={onClose}>Abbrechen</button><button className="btn btn-primary" disabled={busy} onClick={() => void submit()}>{busy ? 'Wird gespeichert …' : 'Speichern'}</button></>}>
       <form className="form" noValidate onSubmit={(e) => { e.preventDefault(); void submit(); }}>
-        <p className="small muted">Fläche: <strong>{area.name}</strong></p>
-        <Field label="Pflanze">
-          {(id) => (
-            <select id={id} className="select" value={f.plantId} onChange={(e) => set('plantId', e.target.value)}>
-              <option value="">Unbestimmte Pflanze</option>
-              {PLANTS.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-          )}
+        {store.data.areas.length > 1 ? (
+          <Field label="Rasenfläche">
+            {(id) => <select id={id} className="select" value={f.areaId} onChange={(e) => set('areaId', e.target.value)}>{store.data.areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</select>}
+          </Field>
+        ) : <p className="small muted">Rasenfläche: <strong>{area.name}</strong></p>}
+        <Field label="Zugeordneter Lexikoneintrag" hint="Du kannst die Zuordnung später jederzeit ändern.">
+          {(id, db) => <><PlantSelect id={id} value={f.plantId} onChange={(v) => set('plantId', v)} /><span id={db} className="sr-only" /></>}
         </Field>
         {f.plantId && (
           <RadioGroup legend="Wie sicher ist die Zuordnung?" name="ident" value={f.identification === 'unbestimmt' ? 'vermutet' : f.identification}
             onChange={(v) => set('identification', v)} options={[
-              { value: 'vermutet', label: IDENT_LABEL.vermutet, hint: 'Mit Bestimmungshilfe oder Vergleich eingegrenzt' },
-              { value: 'eigene_bestimmung', label: IDENT_LABEL.eigene_bestimmung, hint: 'Du bist dir sicher, z. B. nach Bestimmungsbuch' },
+              { value: 'vermutet', label: IDENT_LABEL.vermutet, hint: 'Standard. Das Öffnen eines Steckbriefs bestätigt die Art nicht.' },
+              { value: 'eigene_bestimmung', label: IDENT_LABEL.eigene_bestimmung, hint: 'Nur wählen, wenn du die Art z. B. mit einem Bestimmungsbuch sicher bestimmt hast.' },
             ]} />
         )}
-        <Field label="Standort" hint="z. B. „unter der Hecke, linke Seite“" error={errors.location}>
+        {entry && f.identification === 'vermutet' && <p className="small muted">Gespeichert als „Vermutete Zuordnung: {entry.taxon.nameDe}“.</p>}
+        <Field label="Standort" hint="z. B. „am Gartenzaun“ oder „unter der Hecke, linke Seite“" error={errors.location}>
           {(id, db) => <input id={id} className="input" value={f.location} onChange={(e) => set('location', e.target.value)} aria-describedby={db} aria-invalid={!!errors.location} />}
         </Field>
         {!existing && (
           <>
             <Field label="Datum" error={errors.date}>{(id, db) => <input id={id} type="date" className="input" value={f.date} max={today()} onChange={(e) => set('date', e.target.value)} aria-describedby={db} />}</Field>
-            <Field label="Ausbreitung">
+            <Field label="Geschätzte Ausbreitung (optional)">
               {(id) => <select id={id} className="select" value={f.extent} onChange={(e) => set('extent', e.target.value as Extent)}>{options(EXTENT_LABEL).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>}
             </Field>
             <Field label="Notiz (optional)">{(id) => <textarea id={id} className="textarea" value={f.note} onChange={(e) => set('note', e.target.value)} />}</Field>
-            <PhotoEditor ids={f.photos} onChange={(v) => set('photos', v)} />
+            <PendingPhotos files={f.files} onChange={(v) => set('files', v)} label="Eigene Fotos" />
             <label className="checkbox-row"><input type="checkbox" checked={f.journal} onChange={(e) => set('journal', e.target.checked)} /> Auch im Tagebuch eintragen (verknüpft)</label>
+            <p className="tiny muted">Es werden keine Pflegeaufgaben automatisch angelegt. Eine Nachkontrolle kannst du anschließend selbst planen.</p>
           </>
         )}
       </form>
@@ -146,31 +187,36 @@ export function ObservationDetail({ id }: { id: string }) {
   const store = useStore();
   const o = store.data.observations.find((x) => x.id === id);
   const [dlg, setDlg] = useState<null | 'update' | 'edit' | 'delete' | 'followup'>(null);
-  const [u, setU] = useState({ kind: 'befund' as 'befund' | 'massnahme', date: today(), extent: 'unbekannt' as Extent, note: '', photos: [] as string[], journal: true });
+  const [u, setU] = useState({ kind: 'befund' as 'befund' | 'massnahme', date: today(), extent: 'unbekannt' as Extent, note: '', files: [] as File[], journal: true });
+  const [busyU, setBusyU] = useState(false);
   const [follow, setFollow] = useState(addDays(today(), 21));
   const [err, setErr] = useState<string | null>(null);
   if (!o) return <><SubHead title="Beobachtung" backTo="/hilfe/beobachtungen" /><Empty icon="eye" title="Beobachtung nicht gefunden" /></>;
-  const plant = getPlant(o.plantId);
+  const plant = getEntry(o.plantId);
   const updates = [...o.updates].sort((a, b) => a.date.localeCompare(b.date));
   const photos = updates.flatMap((x) => x.photoIds.map((pid) => ({ pid, date: x.date })));
   const followTasks = store.data.tasks.filter((t) => t.origin.type === 'beobachtung' && t.origin.observationId === o.id);
 
   const addUpdate = async () => {
     if (!isValidISO(u.date) || u.date > today()) { setErr('Bitte ein gültiges Datum, nicht in der Zukunft.'); return; }
-    if (!u.note.trim() && !u.photos.length && u.kind === 'massnahme') { setErr('Beschreibe kurz die Maßnahme.'); return; }
-    const upd: ObservationUpdate = { id: uid('upd'), date: u.date, kind: u.kind, extent: u.kind === 'befund' ? u.extent : null, note: u.note.trim(), photoIds: u.photos };
+    if (!u.note.trim() && !u.files.length && u.kind === 'massnahme') { setErr('Beschreibe kurz die Maßnahme.'); return; }
+    if (busyU) return;
+    setBusyU(true);
     const stamp = nowStamp();
     const ok = await store.run(async () => {
+      const photoIds = await persistFiles(store.addAttachment, u.files);
+      const upd: ObservationUpdate = { id: uid('upd'), date: u.date, kind: u.kind, extent: u.kind === 'befund' ? u.extent : null, note: u.note.trim(), photoIds };
       await store.save('observations', { ...o, updates: [...o.updates, upd], updatedAt: stamp });
       if (u.journal) {
         await store.save('journal', {
           id: uid('jrn'), areaId: o.areaId, date: u.date, type: u.kind === 'massnahme' ? 'pflege' : 'beobachtung',
           title: u.kind === 'massnahme' ? `Maßnahme: ${plantLabel(o)}` : `Nachkontrolle: ${plantLabel(o)}`, note: u.note.trim(),
-          productId: null, amount: null, amountUnit: '', photoIds: u.photos, spot: o.location, linkedTaskId: null, linkedObservationId: o.id,
+          productId: null, amount: null, amountUnit: '', photoIds, spot: o.location, linkedTaskId: null, linkedObservationId: o.id,
           linkedMeasurementId: null, createdAt: stamp, updatedAt: stamp,
         });
       }
     }, u.kind === 'massnahme' ? 'Maßnahme protokolliert.' : 'Befund ergänzt.');
+    setBusyU(false);
     if (ok !== undefined) setDlg(null);
   };
 
@@ -204,7 +250,7 @@ export function ObservationDetail({ id }: { id: string }) {
           <section className="card stack" aria-labelledby="verlauf">
             <div className="spread" style={{ flexWrap: 'wrap' }}>
               <h2 id="verlauf" className="section-title" style={{ marginBottom: 0 }}>Verlauf</h2>
-              <button className="btn btn-primary btn-sm" onClick={() => { setU({ kind: 'befund', date: today(), extent: 'unbekannt', note: '', photos: [], journal: true }); setErr(null); setDlg('update'); }}><Icon name="plus" size={16} /> Eintrag</button>
+              <button className="btn btn-primary btn-sm" onClick={() => { setU({ kind: 'befund', date: today(), extent: 'unbekannt', note: '', files: [], journal: true }); setErr(null); setDlg('update'); }}><Icon name="plus" size={16} /> Eintrag</button>
             </div>
             {[...updates].reverse().map((x) => (
               <article key={x.id} className="stack-sm" style={{ borderTop: '1px solid var(--c-border)', paddingTop: 12 }}>
@@ -222,7 +268,7 @@ export function ObservationDetail({ id }: { id: string }) {
         <div className="stack col-side">
           <section className="card stack-sm">
             <dl className="kv">
-              <dt>Pflanze</dt><dd>{plant ? <a href={`#/hilfe/pflanze/${plant.id}`}>{plant.name}</a> : 'Unbestimmt'}</dd>
+              <dt>Pflanze</dt><dd>{plant ? <a href={`#/hilfe/pflanze/${plant.id}`}>{plant.taxon.nameDe}</a> : 'Ohne Zuordnung'}</dd>
               <dt>Zuordnung</dt><dd>{IDENT_LABEL[o.identification]}</dd>
               <dt>Fläche</dt><dd>{store.data.areas.find((a) => a.id === o.areaId)?.name}</dd>
               <dt>Erster Fund</dt><dd>{fmtDate(updates[0]?.date)}</dd>
@@ -242,7 +288,7 @@ export function ObservationDetail({ id }: { id: string }) {
       </div>
 
       <Dialog open={dlg === 'update'} onClose={() => setDlg(null)} title="Verlauf ergänzen"
-        footer={<><button className="btn btn-outline" onClick={() => setDlg(null)}>Abbrechen</button><button className="btn btn-primary" onClick={() => void addUpdate()}>Speichern</button></>}>
+        footer={<><button className="btn btn-outline" onClick={() => setDlg(null)}>Abbrechen</button><button className="btn btn-primary" disabled={busyU} onClick={() => void addUpdate()}>{busyU ? "Wird gespeichert …" : "Speichern"}</button></>}>
         <div className="form">
           <RadioGroup legend="Art" name="ukind" value={u.kind} onChange={(v) => setU({ ...u, kind: v })} columns options={[{ value: 'befund', label: 'Befund / Ausbreitung' }, { value: 'massnahme', label: 'Eigene Maßnahme' }]} />
           <Field label="Datum" error={err}>{(fid, db) => <input id={fid} type="date" className="input" value={u.date} max={today()} onChange={(e) => setU({ ...u, date: e.target.value })} aria-describedby={db} />}</Field>
@@ -250,7 +296,7 @@ export function ObservationDetail({ id }: { id: string }) {
             <Field label="Ausbreitung">{(fid) => <select id={fid} className="select" value={u.extent} onChange={(e) => setU({ ...u, extent: e.target.value as Extent })}>{options(EXTENT_LABEL).map((x) => <option key={x.value} value={x.value}>{x.label}</option>)}</select>}</Field>
           )}
           <Field label={u.kind === 'massnahme' ? 'Was hast du gemacht?' : 'Notiz (optional)'}>{(fid) => <textarea id={fid} className="textarea" value={u.note} onChange={(e) => setU({ ...u, note: e.target.value })} />}</Field>
-          <PhotoEditor ids={u.photos} onChange={(v) => setU({ ...u, photos: v })} />
+          <PendingPhotos files={u.files} onChange={(v) => setU({ ...u, files: v })} />
           <label className="checkbox-row"><input type="checkbox" checked={u.journal} onChange={(e) => setU({ ...u, journal: e.target.checked })} /> Auch im Tagebuch eintragen</label>
         </div>
       </Dialog>

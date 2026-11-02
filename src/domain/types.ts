@@ -295,6 +295,7 @@ export interface AppData {
   journal: JournalEntry[];
   observations: PlantObservation[];
   attachments: AttachmentMeta[];
+  favorites: string[]; // IDs aus dem Pflanzenlexikon (getrennt gespeichert, meta/favorites)
 }
 
 export const STORE_NAMES = [

@@ -99,6 +99,7 @@ export async function parseImport(text: string): Promise<ParsedImport> {
   }
   const missingAtt = file.data.attachments.filter((a: AttachmentMeta) => !blobs.has(a.id)).length;
   if (missingAtt) warnings.push(`${missingAtt} Foto(s)/Dokument(e) sind in dieser Datei nicht enthalten und werden nicht importiert.`);
+  file.data.favorites = Array.isArray(file.data.favorites) ? file.data.favorites.filter((x: unknown) => typeof x === 'string') : [];
   file.data.user = file.data.user ? { ...file.data.user, dismissedRules: file.data.user.dismissedRules ?? [] } : null;
   const counts = {
     Rasenflächen: file.data.areas.length,

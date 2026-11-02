@@ -23,6 +23,11 @@ jobs:
           node-version: 22
       - name: Bilder und Nachweise laden
         run: scripts/ci-step.sh "Bilder übernehmen" node scripts/lexikon-bilder.mjs uebernehmen
+      - name: Bilder für die App verkleinern
+        run: |
+          pip install --quiet pillow
+          python3 scripts/bilder-komprimieren.py
+
       - name: Committen
         run: |
           git config user.name "github-actions[bot]"

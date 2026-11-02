@@ -60,6 +60,13 @@ const P: Record<string, ReactNode> = {
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
   play: <path d="M7 4.5v15l12-7.5Z" />,
   mushroom: <><path d="M3.5 12a8.5 8.5 0 0 1 17 0Z" /><path d="M9.5 12v6.5a2.5 2.5 0 0 0 5 0V12" /></>,
+  star: <path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z" />,
+  starFilled: <path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8Z" fill="currentColor" />,
+  zoomIn: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M11 8v6M8 11h6" /></>,
+  zoomOut: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M8 11h6" /></>,
+  filter: <path d="M3 5h18l-7 8.5V19l-4 2v-7.5Z" />,
+  external: <><path d="M14 4h6v6" /><path d="M20 4 11 13" /><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></>,
+  columns: <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M12 4v16" /></>,
   swap: <><path d="M7 4 3 8l4 4" /><path d="M3 8h13" /><path d="m17 12 4 4-4 4" /><path d="M21 16H8" /></>,
 };
 

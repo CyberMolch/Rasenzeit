@@ -99,6 +99,15 @@ export function removeMany(entries: { store: StoreName | 'attachments'; id: stri
   });
 }
 
+export async function getMeta<T>(id: string): Promise<T | null> {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction('meta', 'readonly').objectStore('meta').get(id);
+    req.onsuccess = () => resolve((req.result as T) ?? null);
+    req.onerror = () => reject(wrapError(req.error));
+  });
+}
+
 export async function getUser(): Promise<User | null> {
   const db = await openDb();
   return new Promise((resolve, reject) => {

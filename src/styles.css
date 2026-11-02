@@ -412,3 +412,80 @@ table.simple th { color: var(--c-text-2); font-weight: 600; }
 
 .update-banner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--c-sage); color: var(--c-text); border: 1px solid var(--c-border-strong); padding: 10px 14px; border-radius: 14px; margin-bottom: var(--s2); font-size: 0.93rem; }
 .update-banner .icon { color: var(--c-primary); }
+
+/* ---------- Pflanzenlexikon ---------- */
+.ref-ph { width: 100%; height: 100%; min-height: 96px; display: grid; place-items: center; align-content: center; gap: 6px; text-align: center; padding: 12px;
+  color: var(--c-text-2); background: repeating-linear-gradient(135deg, #f1f4ef 0 10px, #eaefe7 10px 20px); font-size: 0.8rem; line-height: 1.3; }
+.ref-ph .icon { color: var(--c-primary-soft); }
+.ref-ph small { color: var(--c-text-3); }
+.lex-entry { background: linear-gradient(120deg, #ffffff 55%, var(--c-sage-2)); }
+.lex-layout { display: grid; gap: var(--s3); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 960px) { .lex-layout { grid-template-columns: 320px minmax(0, 1fr); align-items: start; } .lex-filters { position: sticky; top: var(--s3); } .lex-bottom-extra { display: none; } }
+@media (max-width: 959px) { .lex-side-extra { display: none; } }
+.lex-side-extra { margin-top: 16px; }
+.chip-group legend { font-weight: 600; font-size: 0.92rem; margin-bottom: 6px; display: flex; align-items: center; }
+.chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-sm { min-height: 40px; padding: 0 14px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; }
+.lex-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 720px) { .lex-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .lex-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.lex-tile { position: relative; }
+.lex-img { aspect-ratio: 4 / 3; overflow: hidden; background: var(--c-sage-2); max-width: 100%; }
+.lex-img img { width: 100%; height: 100%; object-fit: cover; }
+.lex-tile-text { display: grid; gap: 2px; padding: 10px 12px 12px; min-width: 0; }
+.lex-tile-text strong { font-size: 0.98rem; line-height: 1.25; overflow-wrap: anywhere; }
+.lex-tile-text em { overflow-wrap: anywhere; }
+.fav-btn { position: absolute; top: 8px; right: 8px; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,.94); color: var(--c-text-2); display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow); }
+.fav-btn[aria-pressed='true'], .fav-inline[aria-pressed='true'] { color: #b7791f; }
+.fav-inline { width: 48px; padding: 0; }
+.gallery { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.gal-item { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.gal-img { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; border: 0; padding: 0; background: var(--c-sage-2); cursor: zoom-in; }
+.gal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+div.gal-img { cursor: default; }
+.gal-zoom { position: absolute; right: 8px; bottom: 8px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.92); color: var(--c-text); display: grid; place-items: center; }
+.gal-item figcaption { display: grid; gap: 2px; }
+.credit { font-size: 0.74rem; color: var(--c-text-3); overflow-wrap: anywhere; }
+.credit a { color: var(--c-text-2); }
+.sim-item { border-top: 1px solid var(--c-border); padding-top: 10px; display: grid; gap: 4px; }
+.sim-item:first-of-type { border-top: 0; padding-top: 0; }
+.sim-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--c-text); min-height: 44px; }
+.sim-link:hover strong { text-decoration: underline; }
+.sim-thumb { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex-shrink: 0; background: var(--c-sage-2); display: block; }
+.sim-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.sim-thumb .ref-ph { min-height: 0; padding: 0; font-size: 0; }
+.warn-text { color: var(--c-warn); display: flex; gap: 4px; align-items: center; }
+.glossary summary { cursor: pointer; font-weight: 600; min-height: 40px; display: flex; align-items: center; }
+.credits { display: grid; gap: 14px; }
+.credit-row { display: grid; gap: 12px; grid-template-columns: 96px minmax(0, 1fr); align-items: start; border-top: 1px solid var(--c-border); padding-top: 12px; }
+.credit-row:first-child { border-top: 0; padding-top: 0; }
+.credit-thumb { aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: var(--c-sage-2); }
+.credit-thumb img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 420px) { .credit-row { grid-template-columns: 64px minmax(0, 1fr); } .credit-row .kv { grid-template-columns: 1fr; gap: 2px; } .credit-row .kv dt { margin-top: 4px; } }
+
+/* Zoom und Bildbetrachter */
+.zoom { display: grid; gap: 4px; min-width: 0; }
+.zoom-box { overflow: auto; max-height: min(70vh, 640px); background: #1d2a23; border-radius: 12px; touch-action: pan-x pan-y pinch-zoom; }
+.zoom-box img { display: block; max-width: none; height: auto; margin: 0 auto; }
+.zoom-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px; flex-wrap: wrap; }
+dialog.lightbox { border: 0; padding: 0; width: min(1100px, 100vw); max-width: 100vw; max-height: 100dvh; background: #101a15; color: #fff; border-radius: 16px; }
+dialog.lightbox::backdrop { background: rgba(8, 15, 11, 0.85); }
+.lb-inner { display: grid; gap: 8px; padding: 12px 12px calc(12px + var(--safe-b)); }
+.lb-head { display: flex; align-items: flex-start; gap: 12px; }
+.lightbox .zoom-box { max-height: calc(100dvh - 190px); background: #000; }
+.lightbox .zoom-bar, .lightbox .muted { color: #d7e2d9; }
+.lightbox .icon-btn { color: #fff; }
+.lightbox .icon-btn:hover { background: rgba(255,255,255,.12); }
+.lightbox .icon-btn:disabled { opacity: .4; }
+.lb-credit, .lb-credit .credit, .lb-credit a { color: #d7e2d9; }
+@media (max-width: 559px) { dialog.lightbox { border-radius: 0; width: 100vw; height: 100dvh; } }
+
+/* Fotovergleich */
+.cmp-label { display: inline-flex; align-items: center; gap: 8px; background: var(--c-warn-bg); color: #5d4500; padding: 8px 12px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; }
+.cmp { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+.cmp-pane { padding: 8px; min-width: 0; }
+.cmp-empty { width: 100%; min-height: 260px; border: 2px dashed var(--c-border-strong); border-radius: 12px; background: var(--c-sage-2); color: var(--c-primary); display: grid; place-items: center; align-content: center; gap: 8px; font-weight: 600; cursor: pointer; padding: 16px; text-align: center; }
+.cmp-switch { margin-bottom: 12px; max-width: 420px; }
+@media (max-width: 799px) { .cmp[data-view='mein'] .cmp-ref, .cmp[data-view='ref'] .cmp-mine { display: none; } }
+@media (min-width: 800px) { .cmp { grid-template-columns: 1fr 1fr; align-items: start; } .cmp-switch { display: none; } }
+@media (max-width: 420px) { .kv { grid-template-columns: minmax(0, 1fr); gap: 2px; } .kv dt { margin-top: 8px; font-size: 0.85rem; } .kv dt:first-child { margin-top: 0; } }

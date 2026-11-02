@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../lib/store';
 import { Icon, type IconName } from '../ui/icons';
-import { Empty, IconBubble, Notice, PageHead, PlantPlaceholder, ReviewTag, SectionTitle, SubHead } from '../ui/components';
-import { CHEMICAL_NOTE, PLANTS, getPlant } from '../content/plants';
+import { Empty, IconBubble, Notice, PageHead, ReviewTag, SectionTitle, SubHead } from '../ui/components';
+import { ENTRIES } from '../content/lexicon/plants';
+import { searchText } from '../content/lexicon/filters';
+import { coverFor } from '../content/lexicon/media';
+import { RefImage } from '../ui/media';
 import { PROBLEMS, getProblem } from '../content/problems';
-import { ObservationForm, ObservationList } from './Observations';
 
 const PROBLEM_ICON: Record<string, IconName> = { moss: 'grass', dry: 'sun', water: 'droplet', mushroom: 'mushroom' };
 
@@ -15,7 +17,8 @@ export function HelpPage() {
   const term = q.trim().toLowerCase();
   const results = useMemo(() => {
     if (!term) return null;
-    const plants = PLANTS.filter((p) => [p.name, p.botanical, ...p.aliases].some((s) => s.toLowerCase().includes(term)));
+    const t = term.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ß/g, 'ss');
+    const plants = ENTRIES.filter((p) => searchText(p).includes(t));
     const problems = PROBLEMS.filter((p) => [p.title, ...p.keywords].some((s) => s.toLowerCase().includes(term)));
     return { plants, problems };
   }, [term]);
@@ -38,7 +41,7 @@ export function HelpPage() {
           ) : (
             <div className="card list-card">
               {results.plants.map((p) => (
-                <a key={p.id} className="list-row" href={`#/hilfe/pflanze/${p.id}`}><IconBubble name="leaf" /><span className="grow"><span className="title" style={{ display: 'block' }}>{p.name}</span><span className="sub">{p.botanical} · Pflanze</span></span><Icon name="chevronRight" className="chev" /></a>
+                <a key={p.id} className="list-row" href={`#/hilfe/pflanze/${p.id}`}><span className="sim-thumb" style={{ width: 48, height: 48 }}><RefImage img={coverFor(p.id)} /></span><span className="grow"><span className="title" style={{ display: 'block' }}>{p.taxon.nameDe}</span><span className="sub"><em>{p.taxon.scientific}</em> · Pflanzenlexikon</span></span><Icon name="chevronRight" className="chev" /></a>
               ))}
               {results.problems.map((p) => (
                 <a key={p.id} className="list-row" href={`#/hilfe/problem/${p.id}`}><IconBubble name={PROBLEM_ICON[p.icon]} /><span className="grow"><span className="title" style={{ display: 'block' }}>{p.title}</span><span className="sub">Rasenproblem</span></span><Icon name="chevronRight" className="chev" /></a>
@@ -59,17 +62,24 @@ export function HelpPage() {
             </div>
           </section>
 
+          <section className="card card-pad-lg lex-entry" aria-labelledby="lex-entry-h">
+            <div className="stack-sm">
+              <h2 id="lex-entry-h" style={{ fontSize: '1.4rem' }}>Pflanzenlexikon</h2>
+              <p className="muted">Entdecke typische Pflanzen im Rasen und vergleiche ihre Merkmale.</p>
+              <div><a className="btn btn-primary" href="#/hilfe/lexikon">Pflanzen ansehen</a></div>
+            </div>
+          </section>
+
           <section>
-            <SectionTitle>Unkräuter im Überblick</SectionTitle>
+            <SectionTitle action={<a className="text-link" href="#/hilfe/lexikon">Alle {ENTRIES.length} ansehen</a>}>Typische Pflanzen im Rasen</SectionTitle>
             <div className="plant-grid">
-              {PLANTS.map((p) => (
+              {ENTRIES.slice(0, 4).map((p) => (
                 <a key={p.id} href={`#/hilfe/pflanze/${p.id}`} className="card plant-tile">
-                  <PlantPlaceholder name={p.name} />
-                  <span className="pt-foot"><span>{p.id === 'fingerhirse' ? 'Fingerhirse' : p.name}</span><Icon name="chevronRight" size={18} /></span>
+                  <div className="lex-img"><RefImage img={coverFor(p.id)} /></div>
+                  <span className="pt-foot"><span>{p.taxon.nameDe}</span><Icon name="chevronRight" size={18} /></span>
                 </a>
               ))}
             </div>
-            <p className="tiny muted" style={{ marginTop: 8 }}>Platzhalter: Geprüfte, rechtmäßig nutzbare Referenzfotos sind noch nicht hinterlegt. Zur Bestimmung dienen die beschriebenen Merkmale.</p>
           </section>
         </div>
 
@@ -88,84 +98,6 @@ export function HelpPage() {
           </div>
         </div>
       </div>
-    </>
-  );
-}
-
-export function PlantDetail({ id }: { id: string }) {
-  const plant = getPlant(id);
-  const store = useStore();
-  const [tab, setTab] = useState<'erkennen' | 'massnahmen' | 'verlauf'>('erkennen');
-  const [formOpen, setFormOpen] = useState(false);
-  if (!plant) return <><SubHead title="Pflanze" backTo="/hilfe" backLabel="Rasenhilfe" /><Empty icon="leaf" title="Pflanze nicht gefunden" /></>;
-  const area = store.activeArea!;
-  const obs = store.data.observations.filter((o) => o.plantId === plant.id && o.areaId === area.id);
-  return (
-    <>
-      <SubHead title={plant.name} subtitle={<><em>{plant.botanical}</em> · {plant.type}</>} backTo="/hilfe" backLabel="Rasenhilfe" />
-      <div className="row-wrap" style={{ marginBottom: 16 }}><ReviewTag meta={plant} /></div>
-      <div className="tabs" role="tablist" aria-label="Bereiche">
-        {([['erkennen', 'Erkennen'], ['massnahmen', 'Maßnahmen'], ['verlauf', `Verlauf${obs.length ? ` (${obs.length})` : ''}`]] as const).map(([k, l]) => (
-          <button key={k} role="tab" aria-selected={tab === k} aria-controls={`panel-${k}`} id={`tab-${k}`} onClick={() => setTab(k)}>{l}</button>
-        ))}
-      </div>
-
-      <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === 'erkennen' && (
-          <div className="cols">
-            <div className="stack">
-              <section className="card stack-sm">
-                <h2 className="section-title" style={{ marginBottom: 0 }}>Merkmale</h2>
-                <p className="muted">{plant.short}</p>
-                <ul className="reason-list">{plant.features.map((f) => <li key={f}><Icon name="check" size={18} /><span>{f}</span></li>)}</ul>
-                <p className="small muted">{plant.season}</p>
-              </section>
-              <section className="card stack-sm">
-                <h2 className="section-title" style={{ marginBottom: 0 }}>So kannst du vergleichen</h2>
-                <ul className="reason-list">{plant.compare.map((f) => <li key={f}><Icon name="search" size={18} /><span>{f}</span></li>)}</ul>
-              </section>
-              <section className="card stack-sm">
-                <h2 className="section-title" style={{ marginBottom: 0 }}>Verwechslungsarten</h2>
-                <div className="stack-sm">
-                  {plant.lookalikes.map((l) => <div key={l.name}><strong>{l.name}</strong><p className="small muted">{l.difference}</p></div>)}
-                </div>
-              </section>
-            </div>
-            <div className="stack col-side">
-              <div className="card" style={{ padding: 0, overflow: 'hidden' }}><PlantPlaceholder name={plant.name} /></div>
-              <p className="tiny muted">Referenzbilder: noch keine geprüften Fotos hinterlegt. Bitte bestimme anhand der Merkmale.</p>
-              <Notice title="Standort">{plant.siteNote}</Notice>
-            </div>
-          </div>
-        )}
-        {tab === 'massnahmen' && (
-          <div className="cols">
-            <div className="stack">
-              {plant.measures.map((m) => (
-                <section key={m.title} className="card stack-sm"><h3>{m.title}</h3><p>{m.text}</p></section>
-              ))}
-              <section className="card stack-sm">
-                <h3>Passende Pflege</h3>
-                <ul className="reason-list">{plant.care.map((c) => <li key={c}><Icon name="sprout" size={18} /><span>{c}</span></li>)}</ul>
-              </section>
-            </div>
-            <div className="stack col-side">
-              <Notice kind="warn" title="Grenzen">{plant.limits.join(' ')}</Notice>
-              <Notice title="Chemische Mittel">{CHEMICAL_NOTE}</Notice>
-            </div>
-          </div>
-        )}
-        {tab === 'verlauf' && (
-          <div className="stack">
-            <div className="spread" style={{ flexWrap: 'wrap' }}>
-              <p className="muted">Funde von {plant.name} auf „{area.name}“.</p>
-              <button className="btn btn-primary" onClick={() => setFormOpen(true)}><Icon name="plus" size={18} /> Fund dokumentieren</button>
-            </div>
-            <ObservationList list={obs} emptyText={`Noch kein Fund von ${plant.name} dokumentiert.`} />
-          </div>
-        )}
-      </div>
-      {formOpen && <ObservationForm open onClose={() => setFormOpen(false)} plantId={plant.id} />}
     </>
   );
 }

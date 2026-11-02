@@ -26,7 +26,7 @@ export function WeedGuide() {
           intro={<>
             <h2 style={{ fontSize: '1.3rem' }}>So funktioniert’s</h2>
             <p>Du beantwortest einige Fragen zu Wuchs, Blättern und Blüten. Rasenzeit vergleicht deine Antworten mit den hinterlegten Pflanzen und zeigt, welche dazu passen könnten – und welche nicht.</p>
-            <p className="muted small">Derzeit sind vier Pflanzen hinterlegt. Eine sichere Bestimmung ist so nicht möglich; bei Unsicherheit hilft eine Fachberatung oder ein Bestimmungsbuch.</p>
+            <p className="muted small">Diese Schnellhilfe vergleicht vier häufige Arten. Für 20 Arten mit Fotos nutze die Merkmalsfilter im <a href="#/hilfe/lexikon">Pflanzenlexikon</a>. Eine sichere Bestimmung ist so nicht möglich; bei Unsicherheit hilft eine Fachberatung oder ein Bestimmungsbuch.</p>
           </>}
           renderResult={() => (
             <section className="card card-pad-lg stack" aria-live="polite">
